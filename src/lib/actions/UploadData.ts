@@ -18,7 +18,7 @@ type UploadType = {
   };
 };
 
-const CHUNK_SIZE = 10000;
+const CHUNK_SIZE = 100;
 
 export async function UploadData(
   formState: UploadType,
@@ -61,12 +61,11 @@ export async function UploadData(
       });
     });
 
-    // teraz wysyłamy chunk po chunku sekwencyjnie
     for (let i = 0; i < chunks.length; i++) {
       const res = await fetch("/api/upload", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ data: chunks[i] }),
+        body: JSON.stringify({ data: chunks[i], chunkNumber: i }),
       });
 
       if (!res.ok) {

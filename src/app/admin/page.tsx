@@ -1,7 +1,7 @@
 "use client";
 
 import UploadForm from "@/src/components/AdminPanel/UploadForm";
-import { supabase } from "@/src/lib/supabaseClient";
+import { supabase } from "@/src/lib/supabase";
 import { useEffect, useState } from "react";
 
 export default function AdminPage() {
