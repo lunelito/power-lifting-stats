@@ -6,7 +6,7 @@ import { AnimatePresence } from "framer-motion";
 import FadeAnimation from "@/src/animations/FadeAnimation";
 import Input from "@/src/components/UI/Input";
 import { useEffect, useState } from "react";
-import { supabase } from "@/src/lib/supabaseClient";
+import { supabase } from "@/src/lib/supabase";
 import { useRouter } from "next/navigation";
 
 type FieldType = {

@@ -37,12 +37,20 @@ export default function Pagination({
 
   const visiblePages = getVisiblePages(pageIndex, totalPages);
   return (
-    <div className="flex gap-1">
+    <div className="text-black dark:text-white backdrop-blur-md  bg-zinc-200/60 dark:bg-zinc-900/60 rounded-xl m-5 p-5 text-xl flex gap-5">
       {visiblePages.map((el, idx) =>
         el === "…" ? (
           <span key={idx}>…</span>
         ) : (
-          <button key={idx} onClick={() => setPageIndex(el as number)}>
+          <button
+            key={idx}
+            onClick={() => setPageIndex(el as number)}
+            className={`${
+              pageIndex === el
+                ? "border-b-2 border-black dark:border-white"
+                : ""
+            } hover:scale-120 transition-all ease-in-out`}
+          >
             {el}
           </button>
         )

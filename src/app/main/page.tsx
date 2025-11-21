@@ -2,6 +2,7 @@
 import DataContainer from "@/src/components/main/DataContainer";
 import Pagination from "@/src/components/main/Pagination";
 import SkeletonLoader from "@/src/components/main/SkeletonLoader";
+import ThemeTest from "@/src/components/ThemeTest";
 import useFetch from "@/src/hooks/useFetch";
 import { powerliftingResults } from "@/src/lib/db/schema";
 import { InferSelectModel } from "drizzle-orm";
@@ -20,7 +21,7 @@ export default function MainPage() {
   }
 
   return (
-    <div>
+    <div className="flex justify-center flex-col items-center overflow-x-auto">
       <DataContainer data={data?.data ?? []} />
       <Pagination
         pageIndex={pageIndex}
