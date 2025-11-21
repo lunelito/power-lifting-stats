@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/src/lib/supabase";
+import { error } from "console";
 
 export async function POST(request: NextRequest) {
   try {
@@ -62,17 +63,17 @@ export async function POST(request: NextRequest) {
     // Filtr to get no sanme records
     const uniqueFormattedData = formattedData.filter((row, index, array) => {
       const currentKey = `${row.name}|${row.sex}|${row.event}|${row.date}|${row.federation}|${row.meetname}|${row.division}|${row.best3benchkg}|${row.best3squatkg}|${row.best3deadliftkg}|${row.totalkg}|${row.place}`;
-      
-      const firstIndex = array.findIndex(item => {
+
+      const firstIndex = array.findIndex((item) => {
         const itemKey = `${item.name}|${item.sex}|${item.event}|${item.date}|${item.federation}|${item.meetname}|${item.division}|${item.best3benchkg}|${item.best3squatkg}|${item.best3deadliftkg}|${item.totalkg}|${item.place}`;
         return itemKey === currentKey;
       });
-      
+
       return firstIndex === index;
     });
 
     // Filtr to get no same records with database
-    const recordIdentifiers = uniqueFormattedData.map(row => ({
+    const recordIdentifiers = uniqueFormattedData.map((row) => ({
       name: row.name,
       sex: row.sex,
       event: row.event,
@@ -84,40 +85,44 @@ export async function POST(request: NextRequest) {
       best3squatkg: row.best3squatkg,
       best3deadliftkg: row.best3deadliftkg,
       totalkg: row.totalkg,
-      place: row.place
+      place: row.place,
     }));
 
     // check if th record is in database
-    const existingRecordsPromises = recordIdentifiers.map(async (identifier) => {
-      let query = supabase
-        .from("powerlifting_results")
-        .select("name, sex, event, date, federation, meetname, division, best3benchkg, best3squatkg, best3deadliftkg, totalkg, place")
-        .eq("name", identifier.name)
-        .eq("sex", identifier.sex)
-        .eq("event", identifier.event)
-        .eq("date", identifier.date)
-        .eq("federation", identifier.federation)
-        .eq("meetname", identifier.meetname)
-        .eq("division", identifier.division);
+    const existingRecordsPromises = recordIdentifiers.map(
+      async (identifier) => {
+        let query = supabase
+          .from("powerlifting_results")
+          .select(
+            "name, sex, event, date, federation, meetname, division, best3benchkg, best3squatkg, best3deadliftkg, totalkg, place"
+          )
+          .eq("name", identifier.name)
+          .eq("sex", identifier.sex)
+          .eq("event", identifier.event)
+          .eq("date", identifier.date)
+          .eq("federation", identifier.federation)
+          .eq("meetname", identifier.meetname)
+          .eq("division", identifier.division);
 
-      if (identifier.best3benchkg && identifier.best3benchkg !== '') {
-        query = query.eq("best3benchkg", identifier.best3benchkg);
-      }
-      if (identifier.totalkg && identifier.totalkg !== '') {
-        query = query.eq("totalkg", identifier.totalkg);
-      }
-      if (identifier.place && identifier.place !== '') {
-        query = query.eq("place", identifier.place);
-      }
+        if (identifier.best3benchkg && identifier.best3benchkg !== "") {
+          query = query.eq("best3benchkg", identifier.best3benchkg);
+        }
+        if (identifier.totalkg && identifier.totalkg !== "") {
+          query = query.eq("totalkg", identifier.totalkg);
+        }
+        if (identifier.place && identifier.place !== "") {
+          query = query.eq("place", identifier.place);
+        }
 
-      const { data: existing, error } = await query.maybeSingle();
+        const { data: existing, error } = await query.maybeSingle();
 
-      return { identifier, exists: !!existing && !error };
-    });
+        return { identifier, exists: !!existing && !error };
+      }
+    );
 
     const existingRecordsResults = await Promise.all(existingRecordsPromises);
 
-    // create a map 
+    // create a map
     const existingMap = new Map();
     existingRecordsResults.forEach(({ identifier, exists }) => {
       const key = `${identifier.name}|${identifier.sex}|${identifier.event}|${identifier.date}|${identifier.federation}|${identifier.meetname}|${identifier.division}|${identifier.best3benchkg}|${identifier.best3squatkg}|${identifier.best3deadliftkg}|${identifier.totalkg}|${identifier.place}`;
@@ -131,7 +136,6 @@ export async function POST(request: NextRequest) {
       return !existingMap.get(key);
     });
 
-    
     if (dataToAdd.length > 0) {
       const { error: insertError } = await supabase
         .from("powerlifting_results")
@@ -149,18 +153,55 @@ export async function POST(request: NextRequest) {
       console.log("no new records to add");
     }
 
-    return NextResponse.json({ 
-      message: "OK", 
+    return NextResponse.json({
+      message: "OK",
       totalRecords: formattedData.length,
       uniqueRecords: uniqueFormattedData.length,
       addedRecords: dataToAdd.length,
       existingRecords: uniqueFormattedData.length - dataToAdd.length,
       duplicatesInChunk: formattedData.length - uniqueFormattedData.length,
-      chunkNumber 
+      chunkNumber,
     });
-
   } catch (err) {
     console.error("server error:", err);
     return NextResponse.json({ error: "server error" }, { status: 500 });
+  }
+}
+
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const page = Number(searchParams.get("page"));
+
+    if (page < 1) {
+      NextResponse.json({ error: "Invalid Page" }, { status: 400 });
+    }
+
+    const start = (page - 1) * 100 + 1;
+    const end = page * 100;
+
+    const { error: errorChunk, data } = await supabase
+      .from("powerlifting_results")
+      .select("*")
+      .gte("id", start)
+      .lte("id", end);
+    const { error: errorTotal, count } = await supabase
+      .from("powerlifting_results")
+      .select("*", { count: "exact" });
+
+    if (data) {
+      return NextResponse.json({
+        data: data,
+        count: count,
+      });
+    }
+
+    if (errorChunk || errorTotal) {
+      console.log(error);
+      return NextResponse.json({ error: error }, { status: 404 });
+    }
+  } catch (err) {
+    console.log(err);
+    return NextResponse.json({ error: "server errror" }, { status: 500 });
   }
 }

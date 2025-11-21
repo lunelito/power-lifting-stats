@@ -62,7 +62,7 @@ export async function UploadData(
     });
 
     for (let i = 0; i < chunks.length; i++) {
-      const res = await fetch("/api/upload", {
+      const res = await fetch("/api/powerlifting-stats", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ data: chunks[i], chunkNumber: i }),
