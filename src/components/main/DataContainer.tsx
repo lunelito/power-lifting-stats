@@ -8,9 +8,9 @@ type DataContainerType = {
 
 export default function DataContainer({ data }: DataContainerType) {
   return (
-    <div className="text-black w-[80vw] text-'[clamp(0.55rem,1.2vw,0.75rem)]' overflow-x-hidden backdrop-blur-md dark:text-white m-5 bg-zinc-200/60 dark:bg-zinc-900/60 p-5 rounded-lg">
+    <div className="text-black bg-zinc-200/60 dark:bg-zinc-900/60 dark:text-white  w-[80vw] text-'[clamp(0.55rem,1.2vw,0.75rem)]' overflow-x-hidden backdrop-blur-md m-5 p-5 rounded-lg">
       <table className="text-center w-full border-collapse">
-        <thead >
+        <thead>
           <tr>
             <th>level</th>
             <th>name</th>

@@ -1,3 +1,4 @@
+"use client"
 import React, { useActionState } from "react";
 import { UploadData } from "@/src/lib/actions/UploadData";
 import FileInput from "../UI/FileInput";

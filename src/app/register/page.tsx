@@ -4,7 +4,7 @@ import { useActionState, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUserDataContext } from "@/src/context/userContext";
 import ErrorContainer from "@/src/components/UI/ErrorContainer";
-import { logIn } from "@/src/lib/actions/logIn";
+import { register } from "@/src/lib/actions/Register";
 import { AnimatePresence } from "framer-motion";
 import FadeAnimation from "@/src/animations/FadeAnimation";
 import Input from "@/src/components/UI/Input";
@@ -19,22 +19,12 @@ type FieldType = {
 };
 
 export default function LoginPage() {
-  const { userData, setUserId } = useUserDataContext();
+  const { userData } = useUserDataContext();
   const router = useRouter();
   const [isPending2, setIsPending] = useState(true);
-  const [formState, action, isPending] = useActionState(logIn, { errors: {} });
-
-  useEffect(() => {
-    if (formState.success && formState.userId) {
-      setUserId(formState.userId);
-    }
-  }, [formState]);
-
-  useEffect(() => {
-    if (userData) {
-      setTimeout(() => router.replace("/account"), 2000);
-    }
-  }, [userData]);
+  const [formState, action, isPending] = useActionState(register, {
+    errors: {},
+  });
 
   useEffect(() => {
     if (userData) {
@@ -45,6 +35,20 @@ export default function LoginPage() {
   }, []);
 
   const fields: FieldType[] = [
+    {
+      type: "text",
+      name: "firstName",
+      text: "First Name",
+      isInvalid: !!formState.errors.firstName,
+      errorMessage: formState.errors.firstName ?? [],
+    },
+    {
+      type: "text",
+      name: "lastName",
+      text: "Last Name",
+      isInvalid: !!formState.errors.lastName,
+      errorMessage: formState.errors.lastName ?? [],
+    },
     {
       type: "text",
       name: "email",
@@ -59,12 +63,19 @@ export default function LoginPage() {
       isInvalid: !!formState.errors.password,
       errorMessage: formState.errors.password ?? [],
     },
+    {
+      type: "password",
+      name: "repeatPassword",
+      text: "Repeat Password",
+      isInvalid: !!formState.errors.repeatPassword,
+      errorMessage: formState.errors.repeatPassword ?? [],
+    },
   ];
 
   const formError = formState.errors._form;
 
   if (isPending2)
-    return <ErrorContainer message={"You are already logged in."} />;
+    return <ErrorContainer message={"First log out to create new account."} />;
 
   return (
     <div className="flex justify-center items-center h-screen w-screen">
@@ -74,20 +85,21 @@ export default function LoginPage() {
       >
         <div className="flex flex-col sm:flex-row sm:items-center w-full justify-between gap-3 ">
           <h1 className="text-[clamp(1rem,6vw,2rem)] font-bold text-center sm:text-left">
-            Login
+            Create Account
           </h1>
           <AnimatePresence mode="wait">
             {formError && (
               <FadeAnimation
                 animationKey={`errorMessage-${formError?.[0] || "unknown"}`}
               >
-                <p className=" text-sm sm:text-base text-center sm:text-right text-orange-400">
+                <p className="text-orange-400 text-sm sm:text-base text-center sm:text-right">
                   {formError?.[0]}
                 </p>
               </FadeAnimation>
             )}
           </AnimatePresence>
         </div>
+
         <div className="w-full flex flex-col gap-5">
           {fields.map((el, i) => (
             <Input
@@ -101,7 +113,7 @@ export default function LoginPage() {
             />
           ))}
         </div>
-        <PrimaryButton isPending={isPending}>Log In</PrimaryButton>
+        <PrimaryButton isPending={isPending}>Sign Up</PrimaryButton>
       </form>
     </div>
   );

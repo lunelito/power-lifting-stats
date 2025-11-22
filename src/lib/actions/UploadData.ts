@@ -18,7 +18,7 @@ type UploadType = {
   };
 };
 
-const CHUNK_SIZE = 100;
+const CHUNK_SIZE = 10000;
 
 export async function UploadData(
   formState: UploadType,

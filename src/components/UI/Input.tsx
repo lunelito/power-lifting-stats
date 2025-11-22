@@ -33,7 +33,7 @@ export default function Input({
   return (
     <div
       className={`relative  p-2 w-full ${
-        isInvalid ? "text-red-600" : "text-white"
+        isInvalid ? "text-orange-400" : "text-black dark:text-white"
       } ${isPending ? "opacity-75" : ""}`}
     >
       <input
@@ -46,7 +46,7 @@ export default function Input({
         onBlur={() => setShowAllText(false)}
         disabled={isPending}
         className={`
-          w-full peer border-b bg-inherit py-1 font-bold transition-colors focus:border-b-2 focus:outline-none
+          w-full peer border-b bg-inherit py-1 font-bold transition-colors focus:border-b-2 border-black dark:border-white focus:outline-none
           text-[clamp(0.875rem,2vw,1.25rem)]
         `}
       />

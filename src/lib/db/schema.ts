@@ -1,4 +1,17 @@
-import { pgTable, serial, varchar, numeric, integer, date } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  serial,
+  varchar,
+  numeric,
+  integer,
+  date,
+  uuid,
+  timestamp,
+} from "drizzle-orm/pg-core";
+
+export const authUsers = pgTable("auth.users", {
+  id: uuid("id").primaryKey(),
+});
 
 export const powerliftingResults = pgTable("powerlifting_results", {
   id: serial("id").primaryKey(),
@@ -43,5 +56,16 @@ export const powerliftingResults = pgTable("powerlifting_results", {
   meetState: varchar("meet_state", { length: 50 }),
   meetTown: varchar("meet_town", { length: 50 }),
   meetName: varchar("meet_name", { length: 100 }),
-  sanctioned: varchar("sanctioned", { length: 10 })
+  sanctioned: varchar("sanctioned", { length: 10 }),
+});
+
+export const profiles = pgTable("profiles", {
+  id: uuid("id")
+    .primaryKey()
+    .references(() => authUsers.id),
+  first_name: varchar("first_name").notNull(),
+  last_name: varchar("last_name").notNull(),
+  role: varchar("role").default("user").notNull(),
+  avatar_url: varchar("avatar_url"),
+  created_at: timestamp("created_at").defaultNow().notNull(),
 });

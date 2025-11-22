@@ -1,9 +1,9 @@
 "use client";
 
 import { z } from "zod";
-import { createClient } from "@supabase/supabase-js";
+import { createBrowserClient } from '@supabase/ssr'
 
-const supabase = createClient(
+const supabase = createBrowserClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
@@ -16,11 +16,12 @@ const loginSchema = z.object({
     .max(64)
     .regex(/[A-Z]/)
     .regex(/[a-z]/)
-    .regex(/[0-9]/)
+    .regex(/[0-9]/),
 });
 
 type LoginType = {
   success?: boolean;
+  userId?: string;
   errors: {
     email?: string[];
     password?: string[];
@@ -33,7 +34,6 @@ export async function logIn(
   formData: FormData
 ): Promise<LoginType> {
   try {
-
     const result = loginSchema.safeParse({
       email: formData.get("email"),
       password: formData.get("password"),
@@ -54,8 +54,6 @@ export async function logIn(
       password: result.data.password,
     });
 
-    console.log(data,error)
-
     if (error) {
       let message = "Nie udało się zalogować użytkownika";
 
@@ -70,7 +68,11 @@ export async function logIn(
       return { errors: { _form: [message] } };
     }
 
-    return { success: true, errors: { _form: ["Zalogowano pomyślnie!"] } };
+    return {
+      success: true,
+      userId: data.user.id,
+      errors: { _form: ["Zalogowano pomyślnie!"] },
+    };
   } catch (err: unknown) {
     if (err instanceof Error) {
       return { errors: { _form: [err.message] } };

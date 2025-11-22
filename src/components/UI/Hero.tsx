@@ -40,7 +40,7 @@ export default function Hero() {
 
   useEffect(() => {
     const HowMuchBalls = Math.floor(Math.random() * 11) + 15;
-    console.log(HowMuchBalls)
+
     const newBalls = [];
 
     for (let i: number = 0; i < HowMuchBalls; i++) {

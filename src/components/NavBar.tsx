@@ -23,7 +23,19 @@ export default function NavBar() {
               href="/login"
               className="hover:scale-110 p-2 transition ease-in-out"
             >
-              Log In
+              Sign In
+            </Link>
+            <Link
+              href="/register"
+              className="hover:scale-110 p-2 transition ease-in-out"
+            >
+              Sign Up
+            </Link>
+            <Link
+              href="/account"
+              className="hover:scale-110 p-2 transition ease-in-out"
+            >
+              Account
             </Link>
             <button
               onClick={toggleTheme}
