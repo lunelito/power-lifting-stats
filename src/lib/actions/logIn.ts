@@ -1,12 +1,10 @@
 "use client";
 
 import { z } from "zod";
-import { createBrowserClient } from '@supabase/ssr'
-
-const supabase = createBrowserClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { supabase } from "../supabase";
+import useFetch from "@/src/hooks/useFetch";
+import { User } from "@supabase/supabase-js";
+import { useUserDataContext } from "@/src/context/userContext";
 
 const loginSchema = z.object({
   email: z.string().min(5).max(100).email(),

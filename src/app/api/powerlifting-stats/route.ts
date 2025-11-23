@@ -268,6 +268,7 @@ export async function GET(request: NextRequest) {
       .select("*")
       .gte("id", start)
       .lte("id", end);
+      
     const { error: errorTotal, count } = await supabase
       .from("powerlifting_results")
       .select("*", { count: "exact" });

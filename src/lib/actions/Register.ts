@@ -66,6 +66,7 @@ export async function register(
   formState: RegisterType,
   formData: FormData
 ): Promise<RegisterType> {
+  
   const result = registerSchema.safeParse({
     firstName: formData.get("firstName"),
     lastName: formData.get("lastName"),

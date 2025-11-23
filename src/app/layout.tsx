@@ -22,13 +22,15 @@ export const metadata: Metadata = {
   description: "Track and analyze your powerlifting performance and statistics",
 };
 
+// In the future, create a landing page for the entire website that will be accessible before downloading the theme from localhost, so that there is no need for a hacky transition
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white dark:bg-zinc-950 text-gray-900 dark:text-gray-100 `}
       >

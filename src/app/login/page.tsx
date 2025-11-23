@@ -9,6 +9,12 @@ import { AnimatePresence } from "framer-motion";
 import FadeAnimation from "@/src/animations/FadeAnimation";
 import Input from "@/src/components/UI/Input";
 import PrimaryButton from "@/src/components/UI/PrimaryButton";
+import { User } from "@supabase/supabase-js";
+import useFetch from "@/src/hooks/useFetch";
+import { profiles } from "@/src/lib/db/schema";
+import { InferSelectModel } from "drizzle-orm";
+
+type AppUser = InferSelectModel<typeof profiles>;
 
 type FieldType = {
   type: "password" | "text" | "number" | "file";
@@ -19,30 +25,55 @@ type FieldType = {
 };
 
 export default function LoginPage() {
-  const { userData, setUserId } = useUserDataContext();
   const router = useRouter();
-  const [isPending2, setIsPending] = useState(true);
+  const [isPending2, setIsPending2] = useState(true);
   const [formState, action, isPending] = useActionState(logIn, { errors: {} });
+  const { userData, setUserId, setUserData, setError, setIsPending: setUserPending } =
+    useUserDataContext();
+
+  const { data, error, isPending: userPending } = useFetch<AppUser>(
+    formState.success && formState.userId
+      ? `/api/user/${formState.userId}`
+      : null
+  );
 
   useEffect(() => {
     if (formState.success && formState.userId) {
       setUserId(formState.userId);
     }
-  }, [formState]);
+  }, [formState.success, formState.userId,setUserId]);
 
   useEffect(() => {
-    if (userData) {
-      setTimeout(() => router.replace("/account"), 2000);
+    if (data) {
+      setUserData(data);
     }
-  }, [userData]);
+  }, [data,setUserData]);
+
+  useEffect(() => {
+    if (error) {
+      setError(error);
+    }
+  }, [error,setError]);
+
+  useEffect(() => {
+    setUserPending(userPending);
+  }, [userPending,setUserPending]);
 
   useEffect(() => {
     if (userData) {
-      setTimeout(() => router.replace("account"), 2000);
+      const timer = setTimeout(() => router.replace("/account"), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [userData, router]);
+
+  useEffect(() => {
+    if (userData) {
+      const timer = setTimeout(() => router.replace("/account"), 2000);
+      return () => clearTimeout(timer);
     } else {
-      setIsPending(false);
+      setIsPending2(false);
     }
-  }, []);
+  }, [userData, router]);
 
   const fields: FieldType[] = [
     {

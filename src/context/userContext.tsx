@@ -5,8 +5,8 @@ import React, {
   useState,
   ReactNode,
   useEffect,
+  useMemo,
 } from "react";
-import useFetch from "@/src/hooks/useFetch";
 import type { InferSelectModel } from "drizzle-orm";
 import { profiles } from "@/src/lib/db/schema";
 
@@ -17,8 +17,10 @@ interface UserDataContextType {
   error: string | null;
   userId: string | null;
   setUserId: React.Dispatch<React.SetStateAction<string | null>>;
-  setUserData:React.Dispatch<React.SetStateAction<User | null>>;
+  setUserData: React.Dispatch<React.SetStateAction<User | null>>;
+  setError: React.Dispatch<React.SetStateAction<string | null>>;
   isPending: boolean;
+  setIsPending: React.Dispatch<React.SetStateAction<boolean>>;
   isAdmin: boolean;
 }
 
@@ -40,48 +42,59 @@ interface Props {
 }
 
 export const UserDataProvider = ({ children }: Props) => {
-  const [userId, setUserId] = useState<string | null>(
-    typeof window !== "undefined" ? localStorage.getItem("userId") : null
-  );
-
-  const [userData, setUserData] = useState<User | null>(() => {
+  const [userId, setUserId] = useState<string | null>(() => {
     if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("userData");
-      return stored ? JSON.parse(stored) : null;
+      return localStorage.getItem("userId");
     }
     return null;
   });
 
-  const { data, error, isPending } = useFetch<User>(
-    userId ? `/api/user/${userId}` : null
-  );
-
-  useEffect(() => {
-    if (data) {
-      setUserData(data);
-      localStorage.setItem("userData", JSON.stringify(data));
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, setIsPending] = useState<boolean>(false);
+  const [userData, setUserData] = useState<User | null>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("userData");
+        return stored ? JSON.parse(stored) : null;
+      } catch {
+        return null;
+      }
     }
-  }, [data]);
+    return null;
+  });
 
+  // Sync to localStorage
   useEffect(() => {
-    if (userId) {
-      localStorage.setItem("userId", userId);
-    } else {
-      localStorage.removeItem("userId");
-      localStorage.removeItem("userData");
-      setUserData(null);
+    if (typeof window !== "undefined") {
+      if (userId) {
+        localStorage.setItem("userId", userId);
+      } else {
+        localStorage.removeItem("userId");
+      }
     }
   }, [userId]);
 
-  const value: UserDataContextType = {
-    userData: userData,
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      if (userData) {
+        localStorage.setItem("userData", JSON.stringify(userData));
+      } else {
+        localStorage.removeItem("userData");
+      }
+    }
+  }, [userData]);
+
+  const value: UserDataContextType = useMemo(() => ({
+    userData,
     error,
     userId,
     setUserId,
     setUserData,
+    setError,
     isPending,
+    setIsPending,
     isAdmin: userData?.role === "admin" || false,
-  };
+  }), [userData, error, userId, isPending]);
 
   return (
     <UserDataContext.Provider value={value}>

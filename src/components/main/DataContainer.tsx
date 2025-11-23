@@ -15,11 +15,11 @@ export default function DataContainer({ data }: DataContainerType) {
             <th>level</th>
             <th>name</th>
             <th>total</th>
+            <th>bodyweightKg</th>
             <th>bench</th>
             <th>deadlift</th>
             <th>squat</th>
             <th>federation</th>
-            <th>bodyweightKg</th>
           </tr>
         </thead>
 
@@ -35,12 +35,18 @@ export default function DataContainer({ data }: DataContainerType) {
             >
               <td className="p-4">{powerlifter.id || "-"}</td>
               <td className="text-xl">{powerlifter.name || "-"}</td>
-              <td>{powerlifter.totalkg || "-"}</td>
-              <td>{powerlifter.best3benchkg || "-"}</td>
-              <td>{powerlifter.best3deadliftkg || "-"}</td>
-              <td>{powerlifter.best3squatkg || "-"}</td>
-              <td>{powerlifter.federation || "-"}</td>
+              <td className="text-xl">{powerlifter.totalkg || "-"}</td>
               <td>{powerlifter.bodyweightkg || "-"}</td>
+              <td className="text-orange-400">
+                {powerlifter.best3benchkg || "-"}
+              </td>
+              <td className="text-orange-500">
+                {powerlifter.best3deadliftkg || "-"}
+              </td>
+              <td className="text-orange-600">
+                {powerlifter.best3squatkg || "-"}
+              </td>
+              <td>{powerlifter.federation || "-"}</td>
             </tr>
           ))}
         </tbody>
